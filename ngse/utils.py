@@ -2,40 +2,33 @@ import logging
 import jwt
 import time
 import datetime
-
 import string
 import random
-
-log = logging.getLogger(__name__)
-
 import transaction
-
 from pyramid_mailer.message import Message
 
-import random
-import string
-
+log = logging.getLogger(__name__)
 JWT_SECRET = "NationalGraduateSchoolOfEng'g"
 
 URI = {
-	# resources
-	'users': '/users',
-	'recommenders': '/recommenders',
-	'forms': '/forms',
-	'categories': '/categories',
-	'questions': '/questions',
-	'elements': '/elements',
-	'answers': '/answers',
-	# actions
-	'verify': '/verify',
-	'login': '/login',
-	'create': '/create',
-	'delete': '/delete',
-	'search': '/search',
-	'show': '/show',
-	'types': '/types',
-	'update': '/update',
-	'validate': '/validate'
+    # resources
+    'users': '/users',
+    'recommenders': '/recommenders',
+    'forms': '/forms',
+    'categories': '/categories',
+    'questions': '/questions',
+    'elements': '/elements',
+    'answers': '/answers',
+    # actions
+    'verify': '/verify',
+    'login': '/login',
+    'create': '/create',
+    'delete': '/delete',
+    'search': '/search',
+    'show': '/show',
+    'types': '/types',
+    'update': '/update',
+    'validate': '/validate'
 }
 
 email_template = '<table>\
@@ -97,104 +90,117 @@ Passcode: {}<br><br>\
 If you have any questions, you may send us an e-mail.<br><br>\
 We hope to see you submit your recommendation soon!'
 
+
 def send_email(mailer, message):
-	message.sender = "ngse@coe.upd.edu.ph"
-	mailer.send(message)
-	transaction.commit()
+    message.sender = "ngse@coe.upd.edu.ph"
+    mailer.send(message)
+    transaction.commit()
+
 
 def send_recommender_email(mailer, name, applicant_name, recipient, password):
-	body = recommender_message.format(name, applicant_name, recipient, password)
-	html = recommender_message_html.format(name, applicant_name, recipient, password)
-	print body
-	message = Message(subject="NGSE Online Recommendation",
-		recipients=[recipient],
-		body=body,
-		html=email_template.format(html)
-		)
+    body = recommender_message.format(name, applicant_name, recipient, password)
+    html = recommender_message_html.format(name, applicant_name, recipient, password)
+    print body
+    message = Message(subject="NGSE Online Recommendation",
+                      recipients=[recipient],
+                      body=body,
+                      html=email_template.format(html)
+                      )
 
-	send_email(mailer, message)
+    send_email(mailer, message)
+
 
 def send_credentials_email(mailer, name, recipient, password):
-	body = applicant_message.format(name, recipient, password)
-	html = applicant_message_html.format(name, recipient, password)
-	print body
-	message = Message(subject="NGSE Online Application",
-		recipients=[recipient],
-		body=body,
-		html=email_template.format(html)
-		)
+    body = applicant_message.format(name, recipient, password)
+    html = applicant_message_html.format(name, recipient, password)
+    print body
+    message = Message(subject="NGSE Online Application",
+                      recipients=[recipient],
+                      body=body,
+                      html=email_template.format(html)
+                      )
 
-	send_email(mailer, message)
+    send_email(mailer, message)
+
 
 def is_past(date):
-	return datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S') < datetime.datetime.now()
+    return datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S') < datetime.datetime.now()
+
 
 def encapsulate(primary, secondary='', action='', base='/v1'):
-	return base+primary+secondary+action
+    return base + primary + secondary + action
+
 
 def encode(payload):
-	return jwt.encode(payload, JWT_SECRET, algorithm='HS256')
+    return jwt.encode(payload, JWT_SECRET, algorithm='HS256')
+
 
 def decode(token):
-	return jwt.decode(token, JWT_SECRET)
+    return jwt.decode(token, JWT_SECRET)
+
 
 def generateError(message, extra_fields=None):
-	d = {'success': False, 'message': message}
-	if extra_fields is not None:
-		d.update(extra_fields)
-	return d
+    d = {'success': False, 'message': message}
+    if extra_fields is not None:
+        d.update(extra_fields)
+    return d
+
 
 def generateSuccess(message, extra_fields=None):
-	d = {'success': True, 'message': message}
-	if extra_fields is not None:
-		d.update(extra_fields)
-	return d
+    d = {'success': True, 'message': message}
+    if extra_fields is not None:
+        d.update(extra_fields)
+    return d
+
 
 def generateToken(user):
-	current_time = int(time.time())
-	expiry_time = current_time + 60*120
+    current_time = int(time.time())
+    expiry_time = current_time + 60 * 120
 
-	payload = {
-		'sub': user.id,
-		'exp': expiry_time,
-		'iat': current_time,
-		'name': user.name,
-		'level': user.user_type_id
-	}
+    payload = {
+        'sub': user.id,
+        'exp': expiry_time,
+        'iat': current_time,
+        'name': user.name,
+        'level': user.user_type_id
+    }
 
-	token = encode(payload)
+    token = encode(payload)
 
-	return token
+    return token
+
 
 def word(n):
-	if int(n) < 1:
-		n = 1
+    if int(n) < 1:
+        n = 1
 
-	if int(n) > 16:
-		n = 16
+    if int(n) > 16:
+        n = 16
 
-	words = [
-		'zero',
-		'one',
-		'two',
-		'three',
-		'four',
-		'five',
-		'six',
-		'seven',
-		'eight',
-		'nine',
-		'ten',
-		'eleven',
-		'twelve',
-		'thirteen',
-		'fourteen',
-		'fifteen',
-		'sixteen'
-	]
+    words = [
+        'zero',
+        'one',
+        'two',
+        'three',
+        'four',
+        'five',
+        'six',
+        'seven',
+        'eight',
+        'nine',
+        'ten',
+        'eleven',
+        'twelve',
+        'thirteen',
+        'fourteen',
+        'fifteen',
+        'sixteen'
+    ]
 
-	return words[n]
+    return words[n]
 
-def password_generator(range_size=8, char_set=string.ascii_uppercase + string.digits+string.ascii_lowercase):
-	return ''.join(random.choice(char_set) for _ in range(range_size))
+
+def password_generator(range_size=8, char_set=string.ascii_uppercase + string.digits + string.ascii_lowercase):
+    return ''.join(random.choice(char_set) for _ in range(range_size))
+
 # print id_generator()

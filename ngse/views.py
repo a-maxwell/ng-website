@@ -1,55 +1,63 @@
+from pyramid.view import view_config
 from cornice import Service
 from sqlalchemy.orm.exc import NoResultFound
+
 from models import (
-	Base,
-	FormType,
-	Form,
-	Category,
-	Element,
-	Answer,
-	UserType,
-	User,
-	form_category_association,
-	ApplicantAttribute
+    Base,
+    FormType,
+    Form,
+    Category,
+    Element,
+    Answer,
+    UserType,
+    User,
+    form_category_association,
+    ApplicantAttribute
 )
 from utils import encapsulate, decode, encode, generateError, generateSuccess, URI, log
-
 from database import session
 from validators import *
 from endpoint import *
 
-from pyramid.view import view_config
 
 @view_config(route_name='index', renderer='index.html')
 def index(request):
-	sections = [
-		{'name': 'home', 'icon': 'home'},
-		{'name': 'news', 'icon': 'announcement'},
-		{'name': 'about', 'icon': 'book'},
-		{'name': 'documents', 'icon': 'file text outline'},
-		{'name': 'contact', 'icon': 'mail'},
-		{'name': 'auth', 'icon': 'sign in'},
-	]
-	return {'sections': sections}
+    sections = [
+        {'name': 'home', 'icon': 'home'},
+        {'name': 'news', 'icon': 'announcement'},
+        {'name': 'about', 'icon': 'book'},
+        {'name': 'documents', 'icon': 'file text outline'},
+        {'name': 'contact', 'icon': 'mail'},
+        {'name': 'auth', 'icon': 'sign in'},
+    ]
+    return {'sections': sections}
+
 
 def create_resource(resource, primary, secondary='', extra=[]):
-	d = {
-		'collection': Service(name=resource, path=encapsulate(primary, secondary), renderer='json', description="Fetch list of {}".format(resource)),
-		'actions': {
-			'create': Service(name='create {}'.format(resource), path=encapsulate(primary, secondary, URI['create']), renderer='json', description="Create {}".format(resource)),
-			'delete': Service(name='delete {}'.format(resource), path=encapsulate(primary, secondary, URI['delete']), renderer='json', description="Delete {}".format(resource)),
-			'show': Service(name='show {}'.format(resource), path=encapsulate(primary, secondary, URI['show']), renderer='json', description="Show {} information".format(resource)),
-			'update': Service(name='update {}'.format(resource), path=encapsulate(primary, secondary, URI['update']), renderer='json', description="Update {} information".format(resource))
-		}
-	}
+    d = {
+        'collection': Service(name=resource, path=encapsulate(primary, secondary), renderer='json',
+                              description="Fetch list of {}".format(resource)),
+        'actions': {
+            'create': Service(name='create {}'.format(resource), path=encapsulate(primary, secondary, URI['create']),
+                              renderer='json', description="Create {}".format(resource)),
+            'delete': Service(name='delete {}'.format(resource), path=encapsulate(primary, secondary, URI['delete']),
+                              renderer='json', description="Delete {}".format(resource)),
+            'show': Service(name='show {}'.format(resource), path=encapsulate(primary, secondary, URI['show']),
+                            renderer='json', description="Show {} information".format(resource)),
+            'update': Service(name='update {}'.format(resource), path=encapsulate(primary, secondary, URI['update']),
+                              renderer='json', description="Update {} information".format(resource))
+        }
+    }
 
-	for item in extra:
-		key = item['key']
-		name = item['name']
-		desc = item['description']
-		d['actions'][key] = Service(name=name, path=encapsulate(primary, secondary, URI[key]), renderer='json', description=desc)
+    for item in extra:
+        key = item['key']
+        name = item['name']
+        desc = item['description']
+        d['actions'][key] = Service(name=name, path=encapsulate(primary, secondary, URI[key]), renderer='json',
+                                    description=desc)
 
-	return d
+    return d
+
 
 ###############################################################################
 # changes in daisy
@@ -74,7 +82,10 @@ reset_db = Service(name='reset_db', path=reset_database_url, description="trunca
 
 ###############################################################################
 
-user = create_resource("user", URI['users'], extra=[{'key': 'verify', 'name': 'verify user', 'description': 'Verify user token'},{'key': 'login', 'name': 'login user', 'description': 'Return JWT upon successful login'}])
+user = create_resource("user", URI['users'],
+                       extra=[{'key': 'verify', 'name': 'verify user', 'description': 'Verify user token'},
+                              {'key': 'login', 'name': 'login user',
+                               'description': 'Return JWT upon successful login'}])
 
 users_get = user['collection']
 get_users = (users_get).get()(get_users)
@@ -97,8 +108,6 @@ show_user = user_show.get()(show_user)
 user_update = user['actions']['update']
 update_user = user_update.post()(update_user)
 
-
-
 # update_validation_status = update_v_status.get()(update_validation_status)
 reset_database = reset_db.get()(reset_database)
 
@@ -114,7 +123,8 @@ recommender_update = recommender['actions']['update']
 
 ###############################################################################
 
-form = create_resource("form", URI['forms'], extra=[{'key': 'types','name': 'list form types','description': 'List all types of forms'}])
+form = create_resource("form", URI['forms'],
+                       extra=[{'key': 'types', 'name': 'list form types', 'description': 'List all types of forms'}])
 
 forms_get = form['collection']
 # get_forms = forms_get.get(validators=(has_token))(get_forms)
@@ -152,7 +162,6 @@ show_category = category_show.get()(show_category)
 
 category_update = category['actions']['update']
 
-
 ###############################################################################
 
 # question = create_resource("question", URI['forms']+URI['categories'], URI['questions'])
@@ -165,7 +174,7 @@ category_update = category['actions']['update']
 # question_show = question['actions']['show']
 # question_update = question['actions']['update']
 
-element = create_resource("element", URI['forms']+URI['categories'], URI['elements'])
+element = create_resource("element", URI['forms'] + URI['categories'], URI['elements'])
 
 elements_get = element['collection']
 get_elements = elements_get.get()(get_elements)
@@ -199,78 +208,91 @@ update_answer = answer_update.post()(update_answer)
 
 ''' Recommender views '''
 
+
 @recommender_collection.get()
 def get_recommenders(request):
-	# log.debug('{}'.format(request.params))
-	# return {'hello': 'yes'}
-	r = []
-	for user in session.query(User).filter(User.user_type_id == 4):
-		r.append({
-			'id': int(user.id),
-			'name': user.name,
-			'email': user.email,
-			'user_type': user.user_type.name,
-			'date_created': str(user.date_created),
-			'last_modified': str(user.last_modified)
-		})
-	return r
+    # log.debug('{}'.format(request.params))
+    # return {'hello': 'yes'}
+    r = []
+    for user in session.query(User).filter(User.user_type_id == 4):
+        r.append({
+            'id': int(user.id),
+            'name': user.name,
+            'email': user.email,
+            'user_type': user.user_type.name,
+            'date_created': str(user.date_created),
+            'last_modified': str(user.last_modified)
+        })
+    return r
+
 
 @recommender_create.post()
 def create_recommender(request):
-	log.debug('{}'.format(request.params))
-	return {'hello': 'yes'}
+    log.debug('{}'.format(request.params))
+    return {'hello': 'yes'}
+
 
 @recommender_delete.post()
 def delete_recommender(request):
-	log.debug('{}'.format(request.params))
-	return {'hello': 'yes'}
+    log.debug('{}'.format(request.params))
+    return {'hello': 'yes'}
+
 
 @recommender_show.get()
 def show_recommender(request):
-	log.debug('{}'.format(request.params))
-	return {'hello': 'yes'}
+    log.debug('{}'.format(request.params))
+    return {'hello': 'yes'}
+
 
 @recommender_update.post()
 def update_recommender(request):
-	log.debug('{}'.format(request.params))
-	return {'hello': 'yes'}
+    log.debug('{}'.format(request.params))
+    return {'hello': 'yes'}
+
 
 ''' Category views '''
 
 
 @category_create.post()
 def create_category(request):
-	log.debug('{}'.format(request.params))
-	return {'hello': 'yes'}
+    log.debug('{}'.format(request.params))
+    return {'hello': 'yes'}
+
 
 @category_delete.post()
 def delete_category(request):
-	log.debug('{}'.format(request.params))
-	return {'hello': 'yes'}
+    log.debug('{}'.format(request.params))
+    return {'hello': 'yes'}
+
 
 @category_update.post()
 def update_category(request):
-	log.debug('{}'.format(request.params))
-	return {'hello': 'yes'}
+    log.debug('{}'.format(request.params))
+    return {'hello': 'yes'}
+
 
 ''' Element views '''
 
+
 @element_create.post()
 def create_element(request):
-	log.debug('{}'.format(request.params))
-	return {'hello': 'yes'}
+    log.debug('{}'.format(request.params))
+    return {'hello': 'yes'}
+
 
 @element_delete.post()
 def delete_element(request):
-	log.debug('{}'.format(request.params))
-	return {'hello': 'yes'}
+    log.debug('{}'.format(request.params))
+    return {'hello': 'yes'}
+
 
 @element_show.get()
 def show_element(request):
-	log.debug('{}'.format(request.params))
-	return {'hello': 'yes'}
+    log.debug('{}'.format(request.params))
+    return {'hello': 'yes'}
+
 
 @element_update.post()
 def update_element(request):
-	log.debug('{}'.format(request.params))
-	return {'hello': 'yes'}
+    log.debug('{}'.format(request.params))
+    return {'hello': 'yes'}
