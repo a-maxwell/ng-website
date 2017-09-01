@@ -20,19 +20,6 @@ from validators import *
 from endpoint import *
 
 
-@view_config(route_name='index', renderer='index.html')
-def index(request):
-    sections = [
-        {'name': 'home', 'icon': 'home'},
-        {'name': 'news', 'icon': 'announcement'},
-        {'name': 'about', 'icon': 'book'},
-        {'name': 'documents', 'icon': 'file text outline'},
-        {'name': 'contact', 'icon': 'mail'},
-        {'name': 'auth', 'icon': 'sign in'},
-    ]
-    return {'sections': sections}
-
-
 def create_resource(resource, primary, secondary='', extra=[]):
     d = {
         'collection': Service(name=resource, path=encapsulate(primary, secondary), renderer='json',

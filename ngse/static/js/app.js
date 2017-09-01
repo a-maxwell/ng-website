@@ -174,70 +174,72 @@ app.config(function($routeProvider) {
     var _decided = ["$q", "userService", function($q, userService) {
         if (!userService.answered()) return $q.reject({"answered": false});
     }]
+  
+    var templatesPath = '/templates/front/';
 
     $routeProvider
-    .when("/", {
-        templateUrl: "/templates/home.html",
+    .when('/auth', {
+        templateUrl: templatesPath + 'lounge.html',
+        resolve: {auth: _loggedIn}
+    })
+    .when('/', {
+        templateUrl: templatesPath + 'home.html',
         resolve: {auth: _user}
     })
-    .when("/admin", {
-        templateUrl: "/templates/admin.html",
-        resolve: {auth: _user}
-    })  
-    .when("/admin/manageform", {
-        templateUrl: "/templates/manage-form.html",
+    .when('/admin', {
+        templateUrl: templatesPath + 'admin/index.html',
         resolve: {auth: _user}
     })
-    .when("/admin/manageform/tagform", {
-        templateUrl: "/templates/tagform.html",
+    .when('/admin/applicants', {
+        templateUrl: templatesPath + 'admin/applicants.html',
         resolve: {auth: _user}
     })
-    .when("/admin/manageform/lifetime", {
-        templateUrl: "/templates/lifetime.html",
+    .when('/admin/categories', {
+        templateUrl: templatesPath + 'admin/categories.html',
         resolve: {auth: _user}
     })
-  .when("/admin/manageform/stat", {
-        templateUrl: "/templates/stat.html",
+    .when('/admin/manageform', {
+        templateUrl: templatesPath + 'admin/manageform/index.html',
         resolve: {auth: _user}
     })
-    .when("/admin/applicants", {
-        templateUrl: "/templates/admin-applicants.html",
+    .when('/admin/manageform/tagform', {
+        templateUrl: templatesPath + 'admin/manageform/tagform.html',
         resolve: {auth: _user}
     })
-    .when("/admin/categories", {
-        templateUrl: "/templates/admin-categories.html",
+    .when('/admin/manageform/lifetime', {
+        templateUrl: templatesPath + 'admin/manageform/lifetime.html',
         resolve: {auth: _user}
     })
-    .when("/application", {
-        templateUrl: "/templates/application.html",
-        controller: "summaryController",
+  .when('/admin/manageform/stat', {
+        templateUrl: templatesPath + 'admin/manageform/stat.html',
         resolve: {auth: _user}
     })
-    .when("/recommendation", {
-        templateUrl: "/templates/recommendation.html",
-        controller: "summaryController",
+    .when('/application', {
+        templateUrl: templatesPath + 'application/index.html',
+        controller: 'summaryController',
         resolve: {auth: _user}
     })
-    .when("/recommendation/:id", {
-        templateUrl: "/templates/form-recommender.html",
-        controller: "formController",
-        resolve: {auth: _user}
-    })
-    .when("/application/category", {
-        templateUrl: "/templates/category.html",
+    .when('/application/category', {
+        templateUrl: templatesPath + '/application/category.html',
         resolve: {auth: _user, answered: _decided}
     })
-    .when("/application/:id", {
-        templateUrl: "/templates/form.html",
-        controller: "formController",
+    .when('/application/:id', {
+        templateUrl: templatesPath + '/application/form.html',
+        controller: 'formController',
         resolve: {auth: _user, answered: _decided}
     })
-    .when("/auth", {
-        templateUrl: "/templates/lounge.html",
-        resolve: {auth: _loggedIn,}
+    .when('/recommendation', {
+        templateUrl: templatesPath + 'recommendation/index.html',
+        controller: 'summaryController',
+        resolve: {auth: _user}
     })
-    .when("/study", {
-        templateUrl: "/templates/study.html",
+    .when('/recommendation/:id', {
+        templateUrl: templatesPath + 'recommendation/form-recommender.html',
+        controller: 'formController',
+        resolve: {auth: _user}
+    })
+    .when('/study', {
+        templateUrl: 'study.html',
         resolve: {auth: _user}
     })
     .otherwise({redirectTo: '/'});
