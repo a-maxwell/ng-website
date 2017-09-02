@@ -15,4 +15,6 @@ def main(global_config, **settings):
     config.include('.models')
 
     config.scan('ngse.views')
+    config.route_prefix = 'v1'
+    config.scan('ngse.views.api')
     return config.make_wsgi_app()
