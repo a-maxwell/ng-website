@@ -1,5 +1,7 @@
+from pyramid.view import view_config
 
-@view_config(route_name='index', renderer='index.html')
+
+@view_config(route_name='index', renderer='ngse:templates/index.html')
 def index(request):
     sections = [
         {'name': 'home', 'icon': 'home'},
@@ -10,4 +12,3 @@ def index(request):
         {'name': 'auth', 'icon': 'sign in'},
     ]
     return {'sections': sections}
-
