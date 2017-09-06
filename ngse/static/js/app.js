@@ -239,7 +239,7 @@ app.config(function($routeProvider) {
         resolve: {auth: _user}
     })
     .when('/study', {
-        templateUrl: 'study.html',
+        templateUrl: templatesPath + 'study.html',
         resolve: {auth: _user}
     })
     .otherwise({redirectTo: '/'});

@@ -170,11 +170,11 @@ def create_user(request):
     except:
         return generateError('Something weird happened!')
 
-    #todo: add send status, move mail send to some queue
+    # todo: add send status, move mail send to some queue
     try:
-       mailer.send_credentials_email(request.mailer, given, email, generated_password)
+        mailer.send_credentials_email(request.mailer, given, email, generated_password)
     except:
-       pass
+        pass
 
     session.add(u)
     session.flush()
@@ -225,8 +225,6 @@ def create_user(request):
         for category_id in category_ids:
             category_status = CategoryStatus(user_id=u.id, category_id=category_id)
             session.add(category_status)
-
-            # session.commit()
 
     return generateSuccess('Welcome, {}!'.format(fullname), {'token': generateToken(u)})
 
@@ -482,3 +480,45 @@ def update_user(request):
     user_attribs.answered_pos = True
 
     return {'success': True}
+
+
+change_application_status_service = Service('Change application status', path='users/{id}/application/status',
+                                            renderer='json')
+
+
+@change_application_status_service.post(validators=(has_admin_rights, has_token))
+def change_application_status(request):
+    session = request.dbsession
+    user_id = request.matchdict['id']
+    status = request.params['status']
+
+    try:
+        attrib = session.query(ApplicantAttribute).filter(ApplicantAttribute.applicant_id == user_id).one()
+    except NoResultFound:
+        return generateError('User is not an applicant or no attribute found')
+    except:
+        return generateError('Unexpected Db error')
+
+    attrib.application_status = status
+
+    return generateSuccess('Application status saved')
+
+
+change_validation_status_service = Service('Change validation status', path='users/{id}/validation/status',
+                                           renderer='json')
+
+
+@change_validation_status_service.post(validators=(has_admin_rights, has_token))
+def change_validation_status(request):
+    session = request.dbsession
+    user_id = request.matchdict['id']
+    status = request.params['status']
+
+    try:
+        attrib = session.query(ApplicantAttribute).filter(ApplicantAttribute.applicant_id == user_id).one()
+    except:
+        return generateError('user id is invalid')
+
+    attrib.validation_status = status
+
+    return generateSuccess('Validation status saved')
