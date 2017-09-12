@@ -117,7 +117,7 @@ def show_form(request):
 update_form_service = Service('update form', path='forms/update', renderer='json')
 
 
-@update_form_service.get()
+@update_form_service.post()
 def update_form(request):
     id = request.params['id']
     session = request.dbsession

@@ -1,5 +1,5 @@
 app.factory('messageService', function($rootScope, $timeout, $location) {
-    methods = {};
+    var methods = {};
 
     var messages = [];
     var counter = 0;
