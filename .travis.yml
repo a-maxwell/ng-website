@@ -1,3 +1,5 @@
+env:
+  - SQLALCHEMY_URL=postgresql://postgres@localhost:5432/ngsewebsite
 language: python
 addons:
   postgresql: '9.4'
