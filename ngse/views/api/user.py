@@ -46,6 +46,8 @@ def get_users(request):
                 'name': u.name,
                 'email': u.email,
                 'user_type': u.user_type.name,
+                'level': _u.level,
+                'program': _u.program,
                 'application_status': _u.application_status,
                 'validation_status': _u.validation_status,
                 'recommender1': rec[0],
