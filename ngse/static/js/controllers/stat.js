@@ -81,11 +81,23 @@ app.controller('statController',
       $scope.pdf = function() {
         console.log('exporting to pdf...');
         let html = document.getElementById('pdfArea').innerHTML;
-        $http.post('/export_pdf', {html: html}).then(function(data) {
-          console.log(data.data)
-          let file = new Blob([data.data], {encoding:"UTF-8", type: 'application/pdf;charset=utf-8'});
-          saveAs(file, 'export.pdf');
-        });
+        var pdf = new jsPDF('p', 'pt', 'a4');
 
+        let pdfStyle = '<style>table, th, td {' +
+            '        border-collapse: collapse;' +
+            '        border: 1px solid black;' +
+            '        width: 580px;' +
+            '        text-align: center;' +
+            '    }' +
+            '' +
+            '    table {' +
+            '        margin-bottom: 20px;' +
+            '    }</style>';
+
+        html += pdfStyle;
+        console.log(html);
+        html2pdf(html, pdf, function(pdf) {
+          pdf.output('save')
+        });
       };
     });

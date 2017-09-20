@@ -1,12 +1,17 @@
 <div class="ui vertical segment" ng-class="{loading: loading}" ng-controller="statController">
 
+    <button class="ui primary basic button right floated" ng-click="pdf()">
+        <i class="file user"></i>
+        Export to PDF
+    </button>
+
     <div id='pdfArea'>
         <h2 class="ui header">
             <i class="percent icon"></i>
             <div class="content">Statistics</div>
         </h2>
 
-        <br></br>
+        <br>
         <table class="ui celled structured table">
             <thead>
             <tr class="center aligned">
@@ -45,10 +50,4 @@
             </tbody>
         </table>
     </div>
-
-    <br/>
-    <button class="ui primary basic button">
-        <i class="file user"></i>
-        Print Statistics
-    </button>
 </div>
