@@ -1,4 +1,4 @@
-app.factory('userService', function($rootScope, $http, $cookies, $location, authService) {
+app.factory('userService', function($rootScope, $http, $cookies, $location, authService, messageService) {
     var methods = {};
 
     var user = {};
@@ -44,6 +44,34 @@ app.factory('userService', function($rootScope, $http, $cookies, $location, auth
             callback({success: false});
         });
     }
+
+    methods.setApplicationStatus = function(user, status, callback) {
+        var url = '/v1/users/'+user.id+'/application/status';
+        $http.post(url, {'status': status})
+        .then(function successCallback(response) {
+            var d = response.data;
+            callback(d);
+        }, function errorCallback(response) {
+            messageService.pushMessage({
+              text: 'Error changing application status',
+              type: 'error'
+            })
+        });
+    };
+
+    methods.setValidationStatus = function(user, status, callback) {
+        var url = '/v1/users/'+user.id+'/validation/status';
+        $http.post(url, {'status': status})
+        .then(function successCallback(response) {
+            var d = response.data;
+            callback(d);
+        }, function errorCallback(response) {
+            messageService.pushMessage({
+              text: 'Error changing validation status',
+              type: 'error'
+            })
+        });
+    };
 
     return methods;
 });
