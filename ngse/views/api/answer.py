@@ -48,11 +48,14 @@ def update_answer(request):
     except:
         return generateError('User id invalid')
 
-    # change category status to answered
-    category_status = session.query(CategoryStatus) \
-        .filter(CategoryStatus.user_id == user_id) \
-        .filter(CategoryStatus.category_id == category_id) \
-        .one()
+    try:
+        # change category status to answered
+        category_status = session.query(CategoryStatus) \
+            .filter(CategoryStatus.user_id == user_id) \
+            .filter(CategoryStatus.category_id == category_id) \
+            .one()
+    except:
+        return generateError('Category invalid')
 
     category_status.status = True
 

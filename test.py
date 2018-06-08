@@ -55,8 +55,17 @@ show_form_testcases=[
 	['5', False]
 ]
 
+
+def _init_app():
+    from pyramid.paster import get_appsettings
+    settings = get_appsettings('ngse.ini', name='main')
+    test_app = TestApp(main({}, **settings))
+
+    return test_app
+
+
 class TestEndpoints(unittest.TestCase):
-	app = TestApp(main({}))
+	app = _init_app()
 
 	tokens = []
 
